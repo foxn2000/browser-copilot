@@ -2,6 +2,7 @@ from groq import Groq
 import google.generativeai as genai
 
 import os
+import platform
 import sys
 import re
 
@@ -18,6 +19,12 @@ load_dotenv(verbose=True)
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 
+if platform.system() == "Windows":
+    chrome_path = os.environ.get("CHROME_BROWSER_PATH_WINDOWS")
+elif platform.system() == "Darwin":  # macOS の場合
+    chrome_path = os.environ.get("CHROME_BROWSER_PATH_MAC")
+else:
+    chrome_path = os.environ.get("CHROME_BROWSER_PATH")  # その他の環境向け
 
 client_groq = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 genai.configure(api_key = os.environ.get("GEMINI_API_KEY"))
@@ -74,7 +81,6 @@ def sync_wrapper(async_func):
 async def gemini_agent(task, model_name:str="gemini-2.0-pro-exp-02-05"):
     # データベースから設定を取得
     api_key = os.environ.get("GEMINI_API_KEY")
-    chrome_path = os.environ.get("CHROME_BROWSER_PATH")
     
     if not api_key:
         raise ValueError("APIキーが設定されていません。設定画面から設定してください。")
